@@ -27,18 +27,22 @@ namespace simulated_device
             // Initial telemetry values
             double minTemperature = 20;
             double minHumidity = 60;
+            string device = "MyDotnetDevice";
             Random rand = new Random();
-
+            int count=0;
             while (true)
             {
                 double currentTemperature = minTemperature + rand.NextDouble() * 15;
                 double currentHumidity = minHumidity + rand.NextDouble() * 20;
-
+                int time = (int)(DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalSeconds;
+            
                 // Create JSON message
                 var telemetryDataPoint = new
                 {
                     temperature = currentTemperature,
-                    humidity = currentHumidity
+                    humidity = currentHumidity,
+                    messageId = time,
+                    deviceId =  device
                 };
                 var messageString = JsonConvert.SerializeObject(telemetryDataPoint);
                 var message = new Message(Encoding.ASCII.GetBytes(messageString));
@@ -50,8 +54,10 @@ namespace simulated_device
                 // Send the telemetry message
                 await s_deviceClient.SendEventAsync(message);
                 Console.WriteLine("{0} > Sending message: {1}", DateTime.Now, messageString);
-
                 await Task.Delay(1000);
+                Console.WriteLine("count is " + count );
+                count = count +1;
+                Task.Delay(5000).Wait(); 
             }
         }
         private static void Main(string[] args)
@@ -65,3 +71,4 @@ namespace simulated_device
         }
     }
 }
+
